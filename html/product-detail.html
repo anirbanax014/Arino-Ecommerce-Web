@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - ShopEase</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-shopping-bag"></i>
+                <a href="index.html" style="text-decoration: none; color: inherit;">ShopEase</a>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search for products, brands and more..." id="searchInput">
+            </div>
+            <div class="header-actions">
+                <a href="login.html" class="auth-link">
+                    <i class="fas fa-user"></i>
+                    <span id="authText">Login</span>
+                </a>
+                <a href="cart.html" class="cart-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Cart</span>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <!-- Product Detail Section -->
+    <section class="product-detail">
+        <div class="container">
+            <div class="product-detail-container" id="productDetailContainer">
+                <!-- Product details will be dynamically loaded here -->
+            </div>
+        </div>
+    </section>
+    <!-- Related Products -->
+    <section class="related-products">
+        <div class="container">
+            <h2>Related Products</h2>
+            <div class="product-grid" id="relatedProducts">
+                <!-- Related products will be dynamically loaded here -->
+            </div>
+        </div>
+    </section>
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>ShopEase</h3>
+                <p>Your one-stop destination for all shopping needs</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Track Order</a></li>
+                    <li><a href="#">Returns</a></li>
+                    <li><a href="#">FAQs</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Policies</h3>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">Shipping Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 ShopEase. All rights reserved.</p>
+        </div>
+    </footer>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <i class="fas fa-check-circle"></i>
+            <span id="toastMessage">Product added to cart!</span>
+        </div>
+    </div>
+    <script src="../js/products.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Get product ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = parseInt(urlParams.get('id'));
+        // Function to render product details
+        function renderProductDetails() {
+            const product = products.find(p => p.id === productId);
+            if (!product) {
+                window.location.href = 'index.html';
+                return;
+            }
+            document.title = `${product.name} - ShopEase`;
+            const container = document.getElementById('productDetailContainer');
+            if (!container) return;
+            container.innerHTML = `
+                <div class="product-detail-content">
+                    <div class="product-images">
+                        <div class="main-image">
+                            <img src="${product.image}" alt="${product.name}">
+                            ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h1 class="product-title">${product.name}</h1>
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                ${generateStars(product.rating)}
+                            </div>
+                            <span class="rating-count">(${product.reviews} Reviews)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">$${product.price.toFixed(2)}</span>
+                            <span class="original-price">$${product.originalPrice.toFixed(2)}</span>
+                            <span class="discount">${product.discount}% off</span>
+                        </div>
+                        <div class="product-description">
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            <ul>
+                                <li>High-quality materials</li>
+                                <li>Durable construction</li>
+                                <li>Modern design</li>
+                                <li>Satisfaction guaranteed</li>
+                            </ul>
+                        </div>
+                        <div class="product-actions">
+                            <div class="quantity-selector">
+                                <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+                                <input type="number" id="quantity" value="1" min="1" max="10">
+                                <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
+                            </div>
+                            <button class="btn-primary add-to-cart" onclick="addToCartFromDetail(${product.id})">
+                                <i class="fas fa-shopping-cart"></i>
+                                Add to Cart
+                            </button>
+                            <button class="btn-secondary">
+                                <i class="far fa-heart"></i>
+                                Add to Wishlist
+                            </button>
+                        </div>
+                        <div class="product-meta">
+                            <p><strong>Category:</strong> ${product.category}</p>
+                            <p><strong>Tags:</strong> trending, featured</p>
+                            <p><strong>SKU:</strong> PRD-${product.id}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            renderRelatedProducts(product.category);
+        }
+        // Function to render related products
+        function renderRelatedProducts(category) {
+            const relatedProducts = products
+                .filter(p => p.category === category && p.id !== productId)
+                .slice(0, 4);
+            const container = document.getElementById('relatedProducts');
+            if (!container) return;
+            container.innerHTML = relatedProducts.map(product => `
+                <div class="product-card" onclick="window.location.href='product-detail.html?id=${product.id}'">
+                    ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
+                        <div class="product-actions">
+                            <button class="action-btn" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button class="action-btn" title="Quick View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.name}</h3>
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                ${generateStars(product.rating)}
+                            </div>
+                            <span class="rating-count">(${product.reviews})</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">$${product.price.toFixed(2)}</span>
+                            <span class="original-price">$${product.originalPrice.toFixed(2)}</span>
+                            <span class="discount">${product.discount}% off</span>
+                        </div>
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">Add to Cart</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        // Function to update quantity
+        function updateQuantity(change) {
+            const quantityInput = document.getElementById('quantity');
+            let newValue = parseInt(quantityInput.value) + change;
+            newValue = Math.max(1, Math.min(10, newValue)); // Limit between 1 and 10
+            quantityInput.value = newValue;
+        }
+        // Function to add to cart from detail page
+        function addToCartFromDetail(productId) {
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const product = products.find(p => p.id === productId);
+            
+            if (!product) return;
+            for (let i = 0; i < quantity; i++) {
+                addToCart(productId);
+            }
+        }
+        // Initialize product detail page
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!productId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            renderProductDetails();
+        });
+    </script>
+</body>
+</html>

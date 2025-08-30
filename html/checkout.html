@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - ShopEase</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-shopping-bag"></i>
+                <a href="index.html" style="text-decoration: none; color: inherit;">ShopEase</a>
+            </div>
+            <div class="checkout-steps">
+                <span class="step active">Cart</span>
+                <i class="fas fa-chevron-right"></i>
+                <span class="step active">Checkout</span>
+                <i class="fas fa-chevron-right"></i>
+                <span class="step">Confirmation</span>
+            </div>
+        </div>
+    </header>
+     
+    <!-- Checkout Section -->
+    <section class="checkout-section">
+        <div class="container">
+            <form id="checkoutForm" class="checkout-form">
+                <div class="checkout-container">
+                    <!-- Shipping Information -->
+                    <div class="checkout-details">
+                        <h2>Shipping Information</h2>
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone</label>
+                                <input type="tel" id="phone" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State</label>
+                                <input type="text" id="state" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="zipCode">ZIP Code</label>
+                                <input type="text" id="zipCode" required>
+                            </div>
+                        </div>
+                        <h2>Payment Information</h2>
+                        <div class="form-group">
+                            <label for="cardName">Name on Card</label>
+                            <input type="text" id="cardName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cardNumber">Card Number</label>
+                            <input type="text" id="cardNumber" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expDate">Expiration Date</label>
+                                <input type="text" id="expDate" placeholder="MM/YY" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv">CVV</label>
+                                <input type="text" id="cvv" required>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <h2>Order Summary</h2>
+                        <div id="orderItems">
+                            <!-- Order items will be dynamically loaded here -->
+                        </div>
+                        <div class="summary-totals">
+                            <div class="summary-item">
+                                <span>Subtotal</span>
+                                <span id="subtotal">$0.00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Shipping</span>
+                                <span id="shipping">$0.00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Tax</span>
+                                <span id="tax">$0.00</span>
+                            </div>
+                            <div class="summary-total">
+                                <span>Total</span>
+                                <span id="total">$0.00</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary btn-block">Place Order</button>
+                        <button type="button" class="btn-secondary btn-block" onclick="window.location.href='cart.html'">Back to Cart</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <i class="fas fa-check-circle"></i>
+            <span id="toastMessage">Order placed successfully!</span>
+        </div>
+    </div>
+    <script src="../js/products.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Function to render order items
+        function renderOrderItems() {
+            const orderItems = document.getElementById('orderItems');
+            if (!orderItems) return;
+            orderItems.innerHTML = cart.map(item => `
+                <div class="order-item">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="item-details">
+                        <h3>${item.name}</h3>
+                        <p>Quantity: ${item.quantity}</p>
+                    </div>
+                    <div class="item-price">$${(item.price * item.quantity).toFixed(2)}</div>
+                </div>
+            `).join('');
+            updateOrderSummary();
+        }
+        // Function to update order summary
+        function updateOrderSummary() {
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const shipping = subtotal > 0 ? 5.99 : 0;
+            const tax = subtotal * 0.08; // 8% tax
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('shipping').textContent = `$${shipping.toFixed(2)}`;
+            document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${(subtotal + shipping + tax).toFixed(2)}`;
+        }
+        // Handle checkout form submission
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real application, this would process the payment and create the order
+            showToast('Order placed successfully! Thank you for shopping with us.');
+            
+            // Clear the cart
+            cart = [];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            
+            // Redirect to confirmation page after a short delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        });
+        // Initialize checkout page
+        document.addEventListener('DOMContentLoaded', function() {
+            // If cart is empty, redirect to cart page
+            if (cart.length === 0) {
+                window.location.href = 'cart.html';
+                return;
+            }
+            renderOrderItems();
+        });
+    </script>
+</body>
+</html>
